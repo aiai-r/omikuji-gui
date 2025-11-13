@@ -1,5 +1,5 @@
 @echo off
-REM 仮想環境を作成して必要なライブラリをインストールするバッチファイル
+chcp 65001 > nul
 
 python -m venv venv
 if errorlevel 1 (
@@ -15,9 +15,8 @@ if errorlevel 1 (
     exit /b 1
 )
 
-pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 
-echo.
 echo インストールが完了しました。
 pause
