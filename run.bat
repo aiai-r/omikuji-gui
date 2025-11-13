@@ -1,14 +1,9 @@
 @echo off
+chcp 65001 > nul
 REM おみくじGUIツールを実行するバッチファイル
 
-call venv\Scripts\activate
-if errorlevel 1 (
-    echo 仮想環境の有効化に失敗しました。
-    pause
-    exit /b 1
-)
-
-python omikuji_gui.py
+REM 'activate' を 'call' せず、venv内のpython.exeを直接指定する (こちらが堅牢です)
+venv\Scripts\python.exe omikuji_gui.py
 
 echo.
 echo プログラムを終了しました。
