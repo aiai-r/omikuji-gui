@@ -4,7 +4,8 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QTextEdit
 )
-from PySide6.QtGui import QFont
+# QColor を使うためにインポートリストに追加（今回は使いませんでしたが、QtGuiにはよく追加されます）
+from PySide6.QtGui import QFont, QColor
 from PySide6.QtCore import Qt
 
 # 元のコードからおみくじデータを流用
@@ -26,7 +27,7 @@ class OmikujiApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("おみくじツール (PySide6版)")
-        self.setGeometry(100, 100, 400, 300)  # ウィンドウの初期位置とサイズ
+        self.setGeometry(100, 100, 400, 300)
 
         # --- ウィジェット（部品）の作成 ---
 
@@ -34,7 +35,7 @@ class OmikujiApp(QMainWindow):
         self.title_label = QLabel("ワンクリックおみくじ")
         font = self.title_label.font()
         font.setPointSize(16)
-        font.setFamily("Yu Gothic UI") # フォントは環境に合わせて調整
+        font.setFamily("Yu Gothic UI")
         self.title_label.setFont(font)
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -45,11 +46,20 @@ class OmikujiApp(QMainWindow):
         # 3. 結果表示 (横並び)
         self.result_label_prefix = QLabel("結果：")
         self.result_label_content = QLabel("まだ引いていません")
+        # ★機能追加：結果ラベルのフォントを少し太く大きくしておく
+        res_font = self.result_label_content.font()
+        res_font.setPointSize(12)
+        self.result_label_content.setFont(res_font)
+
 
         # 4. メッセージ表示用のテキストエリア
         self.message_box = QTextEdit()
-        self.message_box.setReadOnly(True)  # 編集不可にする
-        self.message_box.setFixedHeight(100) # 高さを固定
+        self.message_box.setReadOnly(True)
+        self.message_box.setFixedHeight(100)
+        # ★機能追加：メッセージボックスのフォントも少し大きくする
+        msg_font = self.message_box.font()
+        msg_font.setPointSize(11)
+        self.message_box.setFont(msg_font)
 
         # 5. ボタン (横並び)
         self.draw_button = QPushButton("おみくじを引く")
@@ -57,43 +67,50 @@ class OmikujiApp(QMainWindow):
 
         # --- レイアウト（配置）の設定 ---
 
-        # メインとなるレイアウト (垂直方向)
         main_layout = QVBoxLayout()
-
-        # 結果表示用のレイアウト (水平方向)
         result_layout = QHBoxLayout()
         result_layout.addWidget(self.result_label_prefix)
         result_layout.addWidget(self.result_label_content)
-        result_layout.addStretch() # 左寄せにするためのスペーサー
+        result_layout.addStretch() 
 
-        # ボタン用のレイアウト (水平方向)
         button_layout = QHBoxLayout()
-        button_layout.addStretch() # 中央寄せのためのスペーサー
+        button_layout.addStretch() 
         button_layout.addWidget(self.draw_button)
         button_layout.addWidget(self.exit_button)
         button_layout.addStretch()
 
-        # メインレイアウトに各ウィジェットを追加
         main_layout.addWidget(self.title_label)
         main_layout.addWidget(self.info_label)
-        main_layout.addLayout(result_layout) # レイアウトにレイアウトを追加
+        main_layout.addLayout(result_layout) 
         main_layout.addWidget(self.message_box)
         main_layout.addLayout(button_layout)
 
-        # --- ウィンドウにレイアウトを適用 ---
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
         # --- シグナルとスロット（イベント処理）の接続 ---
         self.draw_button.clicked.connect(self.on_draw_click)
-        self.exit_button.clicked.connect(self.close) # ウィンドウを閉じる
+        self.exit_button.clicked.connect(self.close)
 
     def on_draw_click(self):
         """「おみくじを引く」ボタンが押された時の処理"""
         fortune, message = draw_omikuji()
         self.result_label_content.setText(fortune)
         self.message_box.setText(message)
+
+        # ★★★ ここからが中心的な機能追加 ★★★
+        # 結果に応じて文字色を変更する
+        if fortune == "大吉":
+            color = "red"
+        elif fortune == "凶":
+            color = "blue"
+        else:
+            color = "black" # それ以外は黒
+        
+        # スタイルシートを使って色と太さを設定
+        self.result_label_content.setStyleSheet(f"color: {color}; font-weight: bold;")
+        # ★★★ ここまで ★★★
 
 # --- アプリケーションの実行 ---
 if __name__ == "__main__":
